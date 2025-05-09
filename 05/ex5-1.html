@@ -10,9 +10,59 @@
 
     <script>
         osql.requireLogin();//すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
+        
+        function displayResults(objects) {//ex5-1-2
+            if (!objects || objects.length === 0) {
+                document.getElementById('result').innerHTML = "<p>該当するツイートが見つかりませんでした。</p>";
+                return;
+            }
+
+            let html = '<ul>';
+            for (let i = 0; i < objects.length; i++) {
+                const obj = objects[i];
+                html += '<li><strong>' + (obj.name || '名無し') + '</strong>: ' + (obj.tweet || '') + ' <em>(' + obj.time + ')</em></li>';
+            }
+            html += '</ul>';
+            document.getElementById('result').innerHTML = html;
+        }   
 
         function button1Pressed() {
             doSelect();
+        }
+
+        function button2Pressed() {
+            search();
+        }
+
+        function button3Pressed() {
+            doTable();
+        }
+
+        async function doTable() {//ex5-1-3
+            const sql = 'SELECT id, name FROM Tweets LIMIT 20'
+            const objects = await osql.connect(sql);
+
+            let html = '<table border="1">';
+            html += `<thead>
+                         <tr>
+                            <th>ID</th>
+                            <th>name</th>
+                        </tr>
+                     </thead>
+                     <tbody>`
+
+            // 取得したデータを表に追加
+            for (let i = 0; i < objects.length; i++) {
+                const object = objects[i];
+                html += `<tr>
+                            <td>${object.id}</td>
+                            <td>${object.name || '名無し'}</td>
+                          </tr>`;
+            }
+            html += '</tbody></table>';
+
+            // 結果をHTMLの要素に表示
+            document.getElementById('result').innerHTML = html;
         }
 
         async function doSelect() {
@@ -28,15 +78,29 @@
             html = html + '</ul>';
             document.getElementById('result').innerHTML = html;
         }
+
+        async function search(){//ex5-1-2
+            const keyword = document.getElementById("search").value;
+            console.log("検索キーワード", keyword);
+
+            const sql = "SELECT * FROM Tweets WHERE tweet LIKE '%" + keyword + "%' ORDER BY time DESC LIMIT 20";
+            const objects = await osql.connect(sql);
+            console.log("検索結果：", objects);
+
+            displayResults(objects);
+        }
     </script>
 
 </head>
 
 <body>
     <h1>Tweets</h1>
+    <input id="search" value="" type="textfield">
     <button onclick="button1Pressed()">X</button>
+    <button onclick="button2Pressed()">search</button>
+    <button onclick="button3Pressed()">ex5-1-3</button>
     <hr>
-    <p id="result">xxxx</p>
+    <p id="result"></p>
 </body>
 
 </html>
