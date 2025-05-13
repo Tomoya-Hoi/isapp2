@@ -52,13 +52,17 @@
                 return;
             }
         
-
-            var sql = `DELETE FROM Users WHERE id = "${userid}"`;
-            await osql.connect(sql);
-            console.log(`${userid} has been deleted.`);
-            alert(`${userid}さんのデータを削除しました。`);
-
-            execSelect(); // 再表示
+            var confirmation = confirm(`${userid}さんのデータを削除しますか？`);
+            if(confirmation) {
+                var sql = `DELETE FROM Users WHERE id = "${userid}"`;
+                await osql.connect(sql);
+                console.log(`${userid} has been deleted.`);
+                alert(`${userid}さんのデータを削除しました。`);
+                execSelect(); // 再表示
+            } else {
+                console.log("処理をキャンセルしました");
+            }
+            
         }
     </script>
 
