@@ -15,6 +15,17 @@
             execSelect();
         });
 
+
+        //テキストフィールドからユーザーを削除する
+        function deleteButtonPressed() {
+            var userid = document.getElementById('userDlt').value;
+            deleteUser(userid);
+        }
+
+        async function deleteButtonInRow(userid) {
+            await deleteUser(userid);
+        }
+
         async function execSelect() {
             var sql = 'select * from Users';
             var objects = await osql.connect(sql);
@@ -27,10 +38,27 @@
                 html = html + '<td>' + object.id + '</td>';
                 html = html + '<td>' + object.name + '</td>';
                 html = html + '<td>' + '<a href="update.html?userid=' + object.id + '">変更</a>' + '</td>';
+                html = html + '<td>' + '<button onclick="deleteButtonInRow(\'' + object.id + '\')">' + '削除' + '</button>'
                 html = html + '</tr>';
             }
             html = html + '</table>';
             document.getElementById('result').innerHTML = html;
+        }
+
+        // ユーザー削除処理
+        async function deleteUser(userid) {
+            if (!userid) {
+                alert("ユーザーIDが不正です");
+                return;
+            }
+        
+
+            var sql = `DELETE FROM Users WHERE id = "${userid}"`;
+            await osql.connect(sql);
+            console.log(`${userid} has been deleted.`);
+            alert(`${userid}さんのデータを削除しました。`);
+
+            execSelect(); // 再表示
         }
     </script>
 
@@ -38,6 +66,9 @@
 
 <body>
     <h1>Users</h1>
+    <br>
+    <input id="userDlt" value="" type="password">
+    <button onclick="deleteButtonPressed()">削除</button>
     <p id="result">xxxx</p>
 </body>
 
