@@ -12,17 +12,42 @@
         osql.requireLogin();
         //すべてのページに入れる．google認証をして，osql.connect()や，osql.getMe()を使えるようにしてくれる．
 
-        sessionStorage.setItem('name', '山田太郎');
+        //sessionStorage.setItem('name', '山田太郎');
     </script>
 
     <script>
-        $().ready(function () {
+        let currentUserId = sessionStorage.getItem('userid') || null;
+
+        $().ready(async function () {
             init();
+            loadUserSuggestions();
         });
 
         function init() {
-            var name = sessionStorage.getItem('name') || "guest";
+            var name = sessionStorage.getItem('username') || "guest";
             document.getElementById('welcome').innerHTML = 'ようこそ' + name + 'さん';
+        }
+
+        async function loadUserSuggestions() {
+            const sql = `select * from Users where id != "${currentUserId}" limit 3`;
+            const users = await osql.connect(sql);
+            let html = '<table border="1">';
+            for (const user of users) {
+                html += `<tr>`;
+                    html += `<td>${user.name}</td>`;
+                    html += `<td><button onclick="followUser('${user.id}', '${user.name}')">フォロー</button></td>`
+                html += `</tr>`;
+            }
+            html += '</table>';
+            document.getElementById('userlist').innerHTML = html;
+        }
+
+        async function followUser(toId, toName) {
+            const fromId = sessionStorage.getItem('userid');
+            const sql = `insert into Follows (fromid, toid) values ("${fromId}", "${toId}")`;
+            await osql.connect(sql);
+            alert(`${toName}さんをフォローしました！`);
+            loadUserSuggestions();
         }
     </script>
 
@@ -35,6 +60,9 @@
     <a href="update.html">ユーザー情報変更</a>
     <br>
     <a href="tweet.html">ツイート</a>
+
+    <h2>友達になりませんか？</h2>
+    <div id="userlist"></div>
 </body>
 
 </html>
