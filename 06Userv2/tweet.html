@@ -14,7 +14,8 @@
         });
 
         function init() {
-            var name = sessionStorage.getItem('name') || "guest";
+            var name = sessionStorage.getItem('username');
+            console.log(name);
             //document.getElementById('welcome').innerHTML = 'ようこそ' + name + 'さん';
             document.getElementById('tf1').value = name;
         }
@@ -142,7 +143,7 @@
     <button onclick="button3Pressed()">userlist(ex5-1-3)</button>
 
     <br>
-    名前:<input id="tf1" value="名無し" type="textfield">
+    名前:<input id="tf1" value="" type="textfield">
     <br>
     tweet:<input id="tf2" type="textfield">
     <button onclick="button4Pressed()">tweet(ex5-2-2)</button>
